@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrythm - Wearable Water-Based Air Purification Helmet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4fd1c5 0%, #22d3ee 50%, #06b6d4 100%);
+            --secondary-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #e6f8ff;
+            --text-secondary: #a7d8f0;
+            --danger-red: #ef4444;
+            --success-green: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *::selection { background: rgba(79, 209, 197, 0.4); color: white; }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0a1d2e 0%, #1e3a5f 50%, #0f2b47 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(300px circle at 20% 30%, rgba(79,209,197,0.08) 0%, transparent 60%),
+                radial-gradient(200px circle at 80% 70%, rgba(34,211,238,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+            animation: floatBg 25s ease-in-out infinite;
+        }
+
+        @keyframes floatBg { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.03) rotate(0.3deg); } }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(50px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: 80px 48px;
+            margin: 60px 0;
+            text-align: center;
+            box-shadow: 0 32px 64px -16px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--primary-gradient);
+            padding: 3px; border-radius: 40px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor; -webkit-mask-composite: xor;
+            animation: rotateGradient 30s linear infinite;
+        }
+
+        @keyframes rotateGradient { 100% { transform: rotate(360deg); } }
+
+        .logo-text {
+            font-family: 'Futura PT', sans-serif;
+            font-size: clamp(3.5rem, 9vw, 6.5rem);
+            font-weight: 900;
+            background: var(--primary-gradient);
+            background-clip: text; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em; line-height: 0.9; margin-bottom: 20px;
+        }
+
+        .section {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 32px;
+            padding: 64px 48px;
+            margin-bottom: 64px;
+            transition: all 0.5s ease;
+        }
+
+        .section-title {
+            font-family: 'Futura PT', sans-serif;
+            font-size: clamp(2.8rem, 6vw, 4rem);
+            font-weight: 800;
+            background: var(--primary-gradient);
+            background-clip: text; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center; margin-bottom: 48px;
+        }
+
+        .crisis-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px; margin: 80px 0;
+        }
+
+        .stat-card { 
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 28px;
+            padding: 48px 32px; text-align: center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+        }
+
+        .stat-card:hover { transform: translateY(-16px) scale(1.02); box-shadow: 0 32px 64px rgba(239,68,68,0.25); }
+
+        .stat-number {
+            font-family: 'Futura PT', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: var(--primary-gradient);
+            background-clip: text; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; margin-bottom: 16px;
+        }
+
+        .system-diagram {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px; margin: 48px 0;
+        }
+
+        .diagram-step {
+            background: rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 32px;
+            text-align: center; position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .diagram-step:hover { transform: translateY(-8px); }
+        .diagram-step::before {
+            content: ''; position: absolute; top: 0; left: 50%;
+            transform: translateX(-50%); width: 4px; height: 24px;
+            background: var(--primary-gradient); border-radius: 0 0 4px 4px;
+        }
+
+        .diagram-icon { font-size: 3rem; margin-bottom: 20px; }
+
+        .city-selector-container {
+            display: flex; flex-direction: column; align-items: center; gap: 32px;
+            max-width: 700px; margin: 0 auto;
+        }
+
+        .city-selector-wrapper { position: relative; width: 100%; }
+
+        .city-selector {
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(30px);
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 28px;
+            padding: 24px 32px 24px 80px; width: 100%; font-size: 1.4rem;
+            color: var(--text-primary); font-weight: 500;
+            background-image: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23a7d8f0" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>'),
+                linear-gradient(135deg, rgba(79,209,197,0.1) 0%, rgba(34,211,238,0.1) 100%);
+            background-repeat: no-repeat; background-position: 28px center, 0 0;
+            background-size: 28px, cover; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; appearance: none; font-family: 'Inter', sans-serif;
+        }
+
+        .city-selector:focus {
+            outline: none; border-color: #4fd1c5; 
+            box-shadow: 0 0 0 4px rgba(79,209,197,0.3), 0 20px 40px rgba(79,209,197,0.2);
+            transform: translateY(-2px);
+        }
+
+        .city-selector option {
+            background: #1e3a5f; color: var(--text-primary); padding: 12px;
+        }
+
+        .air-quality-metrics {
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(40px);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 32px;
+            padding: 48px; text-align: center; width: 100%;
+            transform: scale(0.8) rotateX(10deg); opacity: 0; 
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
+        }
+
+        .air-quality-metrics::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--primary-gradient); border-radius: 32px 32px 0 0;
+        }
+
+        .air-quality-metrics.show {
+            transform: scale(1) rotateX(0deg); opacity: 1;
+        }
+
+        .metrics-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px;
+            max-width: 500px; margin: 0 auto 24px;
+        }
+
+        .metric-card {
+            background: rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 24px 20px; border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover { transform: translateY(-4px); }
+
+        .metric-number {
+            font-family: 'Futura PT', sans-serif;
+            font-size: clamp(2.2rem, 6vw, 3.5rem); font-weight: 900; margin-bottom: 8px;
+        }
+
+        .aqi-good .metric-number { background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .aqi-moderate .metric-number { background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .aqi-unhealthy .metric-number { background: linear-gradient(135deg, #ef4444, #f87171); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .aqi-very-unhealthy .metric-number { background: linear-gradient(135deg, #7c3aed, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .metric-label { font-size: 1rem; color: var(--text-secondary); font-weight: 500; }
+
+        .protection-impact {
+            background: rgba(16,185,129,0.2); border: 2px solid rgba(16,185,129,0.4);
+            border-radius: 20px; padding: 24px; margin-top: 24px;
+        }
+
+        .protection-text {
+            font-size: 1.3rem; color: var(--success-green); font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tech-overview {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin: 48px 0;
+        }
+
+        .tech-column h3 {
+            font-family: 'Futura PT', sans-serif;
+            font-size: 1.6rem; font-weight: 800;
+            background: var(--secondary-gradient);
+            background-clip: text; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+        }
+
+        .tech-spec {
+            display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+            padding: 16px 20px; background: rgba(255,255,255,0.1);
+            border-radius: 16px; border-left: 4px solid var(--success-green);
+        }
+
+        .tech-icon { font-size: 1.8rem; }
+
+        .how-works-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px; margin-top: 64px;
+        }
+
+        .step-card {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
+            padding: 48px 32px; text-align: center; position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .step-card:hover { transform: translateY(-8px); }
+        .step-number {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            background: var(--primary-gradient); color: white; width: 48px; height: 48px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-family: 'Futura PT', sans-serif; font-size: 1.4rem; font-weight: 800;
+        }
+
+        .instagram-section {
+            text-align: center; padding: 40px 0;
+        }
+
+        .instagram-handle {
+            font-size: 2.5rem; font-weight: 800; 
+            background: var(--primary-gradient); background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .submit-btn {
+            background: var(--primary-gradient); border: none; border-radius: 20px;
+            padding: 20px 48px; font-size: 1.2rem; font-weight: 600;
+            color: white; cursor: pointer; width: 100%;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-family: 'Futura PT', sans-serif;
+            text-decoration: none; display: inline-block;
+        }
+
+        .submit-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px rgba(79,209,197,0.4); }
+
+        @media (max-width: 768px) {
+            .tech-overview, .metrics-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 16px; }
+            .section { padding: 40px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header class="header">
+            <h1 class="logo-text">Hydrythm</h1>
+            <p style="font-size: 1.4rem; color: rgba(255,255,255,0.9); max-width: 700px; margin: 0 auto; line-height: 1.7;">
+                Wearable Water-Based Air Purification Helmet - Miniaturized Industrial Wet-Scrubber Technology
+            </p>
+        </header>
+
+        <!-- CRISIS STATS -->
+        <section class="section">
+            <h2 class="section-title">The Silent Killer</h2>
+            <div class="crisis-stats">
+                <div class="stat-card">
+                    <div class="stat-number">7.9M</div>
+                    <div>Deaths annually from air pollution</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">86%</div>
+                    <div>Heart disease, stroke, lung cancer</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">$4.6T</div>
+                    <div>Global economic impact yearly</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">99%</div>
+                    <div>World population breathing unsafe air</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM OVERVIEW -->
+        <section class="section">
+            <h2 class="section-title">Hydrythm Airflow System</h2>
+            <div class="system-diagram">
+                <div class="diagram-step">
+                    <div class="diagram-icon">💨</div>
+                    <h3>Side Intake Grills</h3>
+                    <p>Ambient air enters through side-mounted grills</p>
+                </div>
+                <div class="diagram-step">
+                    <div class="diagram-icon">🌀</div>
+                    <h3>Microfan Assisted</h3>
+                    <p>Low-power fans pull air through filtration system</p>
+                </div>
+                <div class="diagram-step">
+                    <div class="diagram-icon">💧</div>
+                    <h3>Water Filtration Chamber</h3>
+                    <p>Microdroplets trap PM2.5, PM10, dust, pollen</p>
+                </div>
+                <div class="diagram-step">
+                    <div class="diagram-icon">🫁</div>
+                    <h3>Clean Air Delivery</h3>
+                    <p>Purified air flows to nose/mouth area</p>
+                </div>
+                <div class="diagram-step">
+                    <div class="diagram-icon">🔋</div>
+                    <h3>Modular Battery</h3>
+                    <p>Rechargeable rear-mounted power pack</p>
+                </div>
+                <div class="diagram-step">
+                    <div class="diagram-icon">♻️</div>
+                    <h3>Replaceable Cartridge</h3>
+                    <p>Transparent water chamber for monitoring</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CITY AIR QUALITY -->
+        <section class="section">
+            <h2 class="section-title">Your City. Real Protection.</h2>
+            <div class="city-selector-container">
+                <div class="city-selector-wrapper">
+                    <select class="city-selector" id="citySelector">
+                        <option value="">🌍 Select your city to see protection...</option>
+                        <option value="dubai">🇦🇪 Dubai, UAE</option>
+                        <option value="delhi">🇮🇳 Delhi, India</option>
+                        <option value="london">🇬🇧 London, UK</option>
+                        <option value="losangeles">🇺🇸 Los Angeles, USA</option>
+                        <option value="beijing">🇨🇳 Beijing, China</option>
+                        <option value="mumbai">🇮🇳 Mumbai, India</option>
+                        <option value="sydney">🇦🇺 Sydney, Australia</option>
+                    </select>
+                </div>
+                <div class="air-quality-metrics" id="airQualityDisplay">
+                    <div class="metrics-grid">
+                        <div class="metric-card" id="currentMetric">
+                            <div class="metric-number" id="currentAQI"></div>
+                            <div class="metric-label">Current AQI</div>
+                        </div>
+                        <div class="metric-card" id="protectedMetric">
+                            <div class="metric-number" id="protectedAQI"></div>
+                            <div class="metric-label">With Hydrythm</div>
+                        </div>
+                    </div>
+                    <div class="protection-impact">
+                        <div class="protection-text">✅PM2.5 Reduction</div>
+                        <div style="color: var(--text-secondary); font-size: 1rem;">
+                            Instant clean air protection wherever you go
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRECISION ENGINEERING -->
+        <section class="section">
+            <h2 class="section-title">Precision Engineering</h2>
+            <p style="font-size: 1.2rem; text-align: center; max-width: 900px; margin: 0 auto 48px; color: rgba(255,255,255,0.9); line-height: 1.7;">
+                Miniaturized industrial wet-scrubber technology adapted for wearable use - capturing PM2.5, PM10, dust, pollen and certain gases
+            </p>
+
+            <div class="tech-overview">
+                <div class="tech-column">
+                    <h3>Core Filtration System</h3>
+                    <div class="tech-spec">
+                        <div class="tech-icon">🫁</div>
+                        <div>
+                            <h4>Water-Based Wet Scrubbing</h4>
+                            <p>Thin water films trap particulates like industrial scrubbers</p>
+                        </div>
+                    </div>
+                    <div class="tech-spec">
+                        <div class="tech-icon">⚡</div>
+                        <div>
+                            <h4>Microfan Assisted Flow</h4>
+                            <p>Low-power fans ensure consistent airflow through chamber</p>
+                        </div>
+                    </div>
+                    <div class="tech-spec">
+                        <div class="tech-icon">💧</div>
+                        <div>
+                            <h4>Transparent Chamber</h4>
+                            <p>Monitor water level and captured pollutants visually</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tech-column">
+                    <h3>Power & Safety</h3>
+                    <div class="tech-spec">
+                        <div class="tech-icon">🔋</div>
+                        <div>
+                            <h4>Lithium-Polymer Battery</h4>
+                            <p>Rear-mounted, modular, rechargeable power system</p>
+                        </div>
+                    </div>
+                    <div class="tech-spec">
+                        <div class="tech-icon">♻️</div>
+                        <div>
+                            <h4>Removable Cartridge</h4>
+                            <p>Easy water replacement and maintenance</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="how-works-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Air Intake & Microfans</h3>
+                    <p>Side grills pull ambient air through the system</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Water Filtration Chamber</h3>
+                    <p>Microdroplets capture pollutants through wet scrubbing</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Clean Air Delivery</h3>
+                    <p>Purified air reaches nose/mouth breathing zone</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT THE INVENTOR (SIMPLIFIED) -->
+        <section class="section">
+            <h2 class="section-title">About the Inventor</h2>
+            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                <div style="display: flex; flex-direction: column; gap: 48px; align-items: center;">
+                    <!-- The Vision -->
+                    <div>
+                        <h3 style="font-family: 'Futura PT', sans-serif; font-size: 2.2rem; background: var(--primary-gradient); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px;">
+                            The Vision
+                        </h3>
+                        <p style="color: var(--text-primary); line-height: 1.8; font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
+                            An aim to build it in Dubai to solve the global air pollution crisis. 
+                            Miniaturized industrial technology for personal protection - 
+                            because clean air shouldn't be a luxury.
+                        </p>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 24px; max-width: 500px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--success-green); margin-bottom: 12px;">17</div>
+                            <div style="color: var(--text-secondary); font-weight: 500;">Years Old</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: #4fd1c5; margin-bottom: 12px;">8mo</div>
+                            <div style="color: var(--text-secondary); font-weight: 500;">Research</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: 800; color: #f59e0b; margin-bottom: 12px;">Aim 98%</div>
+                            <div style="color: var(--text-secondary); font-weight: 500;">PM2.5 Capture</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INSTAGRAM SECTION -->
+        <section class="section instagram-section">
+            <h2 class="section-title">Connect on Instagram</h2>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 32px;">
+                <div class="instagram-handle">@dha1ryadesai</div>
+                <a href="https://instagram.com/dha1ryadesai" target="_blank" class="submit-btn" style="max-width: 320px; font-size: 1.3rem;">
+                    📱 Message on Instagram
+                </a>
+                <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 400px;">
+                    DM for partnerships, demos, inquiries & collaborations
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const cityAQI = {
+            dubai: { current: 156, label: 'Unhealthy', class: 'aqi-unhealthy' },
+            delhi: { current: 342, label: 'Very Unhealthy', class: 'aqi-very-unhealthy' },
+            london: { current: 78, label: 'Moderate', class: 'aqi-moderate' },
+            losangeles: { current: 112, label: 'Unhealthy for Sensitive Groups', class: 'aqi-unhealthy' },
+            beijing: { current: 245, label: 'Very Unhealthy', class: 'aqi-very-unhealthy' },
+            mumbai: { current: 198, label: 'Unhealthy', class: 'aqi-unhealthy' },
+            sydney: { current: 45, label: 'Good', class: 'aqi-good' }
+        };
+
+        const citySelector = document.getElementById('citySelector');
+        const airQualityDisplay = document.getElementById('airQualityDisplay');
+        const currentAQI = document.getElementById('currentAQI');
+        const protectedAQI = document.getElementById('protectedAQI');
+        const currentMetric = document.getElementById('currentMetric');
+        const protectedMetric = document.getElementById('protectedMetric');
+
+        citySelector.addEventListener('change', function() {
+            const selectedCity = this.value;
+            if (selectedCity && cityAQI[selectedCity]) {
+                const data = cityAQI[selectedCity];
+                let protectedValue;
+                if (selectedCity === 'delhi') protectedValue = 162;
+                else if (selectedCity === 'beijing') protectedValue = 125;  
+                else protectedValue = Math.max(12, Math.round(data.current * 0.20));
+                
+                animateNumber(currentAQI, data.current);
+                animateNumber(protectedAQI, protectedValue);
+                
+                Object.values([currentMetric, protectedMetric]).forEach((metric) => {
+                    metric.className = `metric-card ${data.class}`;
+                });
+                
+                airQualityDisplay.classList.add('show');
+            } else {
+                airQualityDisplay.classList.remove('show');
+            }
+        });
+
+        function animateNumber(element, target) {
+            let start = 0;
+            const duration = 1200;
+            const startTime = performance.now();
+            
+            function step(currentTime) {
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                element.textContent = Math.floor(easeProgress * target).toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
