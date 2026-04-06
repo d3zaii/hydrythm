@@ -1,604 +1,907 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hydrythm - Wearable Water-Based Air Purification Helmet</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.cdnfonts.com/css/futura-pt" rel="stylesheet">
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #4fd1c5 0%, #22d3ee 50%, #06b6d4 100%);
-            --secondary-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --text-primary: #e6f8ff;
-            --text-secondary: #a7d8f0;
-            --danger-red: #ef4444;
-            --success-green: #10b981;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydrythm – Clean Air You Can See</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --water: #00d4ff;
+    --water-dark: #0098c4;
+    --water-glow: rgba(0,212,255,0.18);
+    --bg: #050b12;
+    --surface: #0b1520;
+    --surface2: #0f1e2e;
+    --text: #e8f4f8;
+    --muted: #7aa0b4;
+    --accent: #00d4ff;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        *::selection { background: rgba(79, 209, 197, 0.4); color: white; }
+  html { scroll-behavior: smooth; }
 
-        body { 
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(145deg, #0a1d2e 0%, #1e3a5f 50%, #0f2b47 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            color: var(--text-primary);
-            overflow-x: hidden;
-            position: relative;
-        }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: 
-                radial-gradient(300px circle at 20% 30%, rgba(79,209,197,0.08) 0%, transparent 60%),
-                radial-gradient(200px circle at 80% 70%, rgba(34,211,238,0.06) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 1;
-            animation: floatBg 25s ease-in-out infinite;
-        }
+  body { cursor: none; }
+  #cursor {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--water);
+    position: fixed; top:0; left:0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width .2s, height .2s, background .2s;
+    box-shadow: 0 0 18px var(--water);
+  }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,212,255,0.5);
+    position: fixed; top:0; left:0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .12s cubic-bezier(.22,1,.36,1), width .2s, height .2s, border-color .2s;
+  }
+  a:hover ~ #cursor, button:hover ~ #cursor { width:22px; height:22px; }
 
-        @keyframes floatBg { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.03) rotate(0.3deg); } }
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; align-items:center; justify-content:space-between;
+    padding: 1.4rem 5vw;
+    background: rgba(5,11,18,0);
+    transition: background .4s, backdrop-filter .4s;
+  }
+  nav.scrolled {
+    background: rgba(5,11,18,0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 0.5px solid rgba(0,212,255,0.1);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem; font-weight: 800;
+    color: var(--water);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--text); }
+  .nav-links { display:flex; gap:2.2rem; list-style:none; }
+  .nav-links a {
+    font-size: .88rem; letter-spacing:.06em; text-transform:uppercase;
+    color: var(--muted); text-decoration:none;
+    transition: color .2s;
+    font-weight: 500;
+  }
+  .nav-links a:hover { color: var(--water); }
+  .nav-cta {
+    background: transparent;
+    border: 1.5px solid var(--water);
+    color: var(--water);
+    padding: .5rem 1.4rem;
+    border-radius: 100px;
+    font-size: .85rem; font-weight: 500;
+    cursor: none;
+    letter-spacing: .04em;
+    transition: background .2s, color .2s, box-shadow .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-cta:hover {
+    background: var(--water);
+    color: var(--bg);
+    box-shadow: 0 0 30px rgba(0,212,255,0.35);
+  }
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 10; }
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding: 0 5vw 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position:absolute; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 60%, rgba(0,120,180,0.13) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 20% 80%, rgba(0,212,255,0.07) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position:absolute; inset:0; z-index:0; opacity:0.06;
+    background-image:
+      linear-gradient(rgba(0,212,255,.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .water-orb {
+    position:absolute; border-radius:50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.25), transparent 70%);
+    animation: pulse-orb 6s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .water-orb.o1 { width:500px; height:500px; top:-100px; right:-100px; animation-delay:0s; }
+  .water-orb.o2 { width:300px; height:300px; bottom:-50px; left:-80px; animation-delay:-3s; }
+  @keyframes pulse-orb {
+    0%,100% { opacity:0.5; transform:scale(1); }
+    50% { opacity:0.9; transform:scale(1.08); }
+  }
 
-        .header {
-            background: var(--glass-bg);
-            backdrop-filter: blur(50px);
-            border: 1px solid var(--glass-border);
-            border-radius: 40px;
-            padding: 80px 48px;
-            margin: 60px 0;
-            text-align: center;
-            box-shadow: 0 32px 64px -16px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-        }
+  .hero-tag {
+    display:inline-flex; align-items:center; gap:.5rem;
+    border: 1px solid rgba(0,212,255,0.35);
+    background: rgba(0,212,255,0.06);
+    padding: .4rem 1rem; border-radius:100px;
+    font-size: .78rem; letter-spacing:.1em; text-transform:uppercase;
+    color: var(--water); margin-bottom:1.8rem;
+    animation: fadeUp .8s ease both;
+  }
+  .tag-dot { width:6px; height:6px; border-radius:50%; background:var(--water); animation: blink 1.4s ease infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-        .header::before {
-            content: ''; position: absolute; inset: 0;
-            background: var(--primary-gradient);
-            padding: 3px; border-radius: 40px;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: xor; -webkit-mask-composite: xor;
-            animation: rotateGradient 30s linear infinite;
-        }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3.2rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.4rem;
+    animation: fadeUp .9s .1s ease both;
+  }
+  .hero-title em { font-style:normal; color:var(--water); }
 
-        @keyframes rotateGradient { 100% { transform: rotate(360deg); } }
+  .hero-sub {
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.65;
+    margin: 0 auto 2.8rem;
+    font-weight: 300;
+    animation: fadeUp 1s .2s ease both;
+  }
 
-        .logo-text {
-            font-family: 'Futura PT', sans-serif;
-            font-size: clamp(3.5rem, 9vw, 6.5rem);
-            font-weight: 900;
-            background: var(--primary-gradient);
-            background-clip: text; -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.03em; line-height: 0.9; margin-bottom: 20px;
-        }
+  .hero-btns {
+    display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;
+    animation: fadeUp 1s .35s ease both;
+  }
+  .btn-primary {
+    background: var(--water);
+    color: var(--bg);
+    border: none;
+    padding: .9rem 2.2rem;
+    border-radius: 100px;
+    font-size: .95rem; font-weight: 700;
+    cursor: none;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: .02em;
+    transition: box-shadow .25s, transform .2s;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 40px rgba(0,212,255,0.5);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    padding: .9rem 2.2rem;
+    border-radius: 100px;
+    font-size: .95rem; font-weight: 500;
+    cursor: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-ghost:hover { border-color: rgba(0,212,255,0.5); color:var(--water); }
 
-        .section {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 32px;
-            padding: 64px 48px;
-            margin-bottom: 64px;
-            transition: all 0.5s ease;
-        }
+  .scroll-hint {
+    position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:.5rem;
+    animation: fadeUp 1s .7s ease both;
+    color: var(--muted); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .scroll-line {
+    width:1px; height:50px;
+    background: linear-gradient(to bottom, var(--water), transparent);
+    animation: scrollDrop 2s ease-in-out infinite;
+  }
+  @keyframes scrollDrop { 0%{opacity:1;transform:scaleY(1) translateY(0)} 100%{opacity:0;transform:scaleY(0.3) translateY(20px)} }
 
-        .section-title {
-            font-family: 'Futura PT', sans-serif;
-            font-size: clamp(2.8rem, 6vw, 4rem);
-            font-weight: 800;
-            background: var(--primary-gradient);
-            background-clip: text; -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center; margin-bottom: 48px;
-        }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(30px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
 
-        .crisis-stats {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px; margin: 80px 0;
-        }
+  .stat-strip {
+    display:flex; flex-wrap:wrap; justify-content:center; gap:0;
+    border-top: 0.5px solid rgba(0,212,255,0.1);
+    border-bottom: 0.5px solid rgba(0,212,255,0.1);
+    background: var(--surface);
+    overflow:hidden;
+  }
+  .stat-item {
+    flex:1; min-width:200px;
+    padding: 2rem 2.5rem;
+    border-right: 0.5px solid rgba(0,212,255,0.08);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    transition: background .3s;
+  }
+  .stat-item:last-child { border-right:none; }
+  .stat-item::after {
+    content:'';
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:0; height:2px; background:var(--water);
+    transition: width .4s ease;
+  }
+  .stat-item:hover::after { width:60%; }
+  .stat-item:hover { background: rgba(0,212,255,0.04); }
+  .stat-num {
+    font-family:'Syne',sans-serif;
+    font-size:2.4rem; font-weight:800;
+    color:var(--water); line-height:1;
+    margin-bottom:.3rem;
+  }
+  .stat-label { font-size:.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
 
-        .stat-card { 
-            background: rgba(255,255,255,0.08); backdrop-filter: blur(30px);
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 28px;
-            padding: 48px 32px; text-align: center;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
-        }
+  section { padding: 8rem 5vw; }
+  @media (max-width: 600px) { section { padding: 5rem 5vw; } }
+  .section-tag {
+    display:inline-block;
+    font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--water); margin-bottom:1rem;
+    font-weight:500;
+  }
+  .section-title {
+    font-family:'Syne',sans-serif;
+    font-size:clamp(2rem,4.5vw,3.4rem);
+    font-weight:800; line-height:1.1;
+    letter-spacing:-0.025em;
+    margin-bottom:1.2rem;
+  }
+  .section-title em { font-style:normal; color:var(--water); }
 
-        .stat-card:hover { transform: translateY(-16px) scale(1.02); box-shadow: 0 32px 64px rgba(239,68,68,0.25); }
+  #how { position:relative; background: var(--surface); }
+  .how-inner { max-width:1100px; margin:0 auto; }
+  .how-header { text-align:center; max-width:600px; margin:0 auto 5rem; }
+  .how-header p { color:var(--muted); font-size:1.05rem; line-height:1.65; font-weight:300; }
 
-        .stat-number {
-            font-family: 'Futura PT', sans-serif;
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 900;
-            background: var(--primary-gradient);
-            background-clip: text; -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; margin-bottom: 16px;
-        }
+  .steps-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:1.5px;
+    background: rgba(0,212,255,0.08);
+    border: 0.5px solid rgba(0,212,255,0.08);
+    border-radius:16px; overflow:hidden;
+  }
+  .step-card {
+    background: var(--surface);
+    padding: 2.5rem 2rem;
+    position:relative;
+    overflow:hidden;
+    transition: background .3s;
+  }
+  .step-card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--water), transparent);
+    transform:scaleX(0); transform-origin:left;
+    transition: transform .5s ease;
+  }
+  .step-card:hover::before { transform:scaleX(1); }
+  .step-card:hover { background: rgba(0,212,255,0.04); }
 
-        .system-diagram {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px; margin: 48px 0;
-        }
+  .step-num {
+    font-family:'Syne',sans-serif;
+    font-size:4rem; font-weight:800;
+    color:rgba(0,212,255,0.08);
+    line-height:1; margin-bottom:1rem;
+    transition: color .3s;
+  }
+  .step-card:hover .step-num { color:rgba(0,212,255,0.18); }
+  .step-icon { font-size:1.8rem; margin-bottom:1rem; }
+  .step-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:.6rem; }
+  .step-desc { font-size:.88rem; color:var(--muted); line-height:1.65; font-weight:300; }
 
-        .diagram-step {
-            background: rgba(255,255,255,0.1);
-            border-radius: 24px; padding: 32px;
-            text-align: center; position: relative;
-            transition: all 0.4s ease;
-        }
+  #specs { background:var(--bg); }
+  .specs-inner { max-width:1100px; margin:0 auto; }
+  .specs-layout {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:4rem; align-items:start;
+  }
+  @media(max-width:760px){ .specs-layout{grid-template-columns:1fr;} }
+  .specs-text p { color:var(--muted); line-height:1.7; font-size:1rem; font-weight:300; margin-bottom:2rem; }
 
-        .diagram-step:hover { transform: translateY(-8px); }
-        .diagram-step::before {
-            content: ''; position: absolute; top: 0; left: 50%;
-            transform: translateX(-50%); width: 4px; height: 24px;
-            background: var(--primary-gradient); border-radius: 0 0 4px 4px;
-        }
+  .spec-list { display:flex; flex-direction:column; gap:0; }
+  .spec-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:1rem 0;
+    border-bottom:.5px solid rgba(0,212,255,0.07);
+    transition: background .2s;
+  }
+  .spec-row:hover { padding-left:8px; }
+  .spec-key { font-size:.85rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:400; }
+  .spec-val { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:var(--text); }
+  .spec-val.accent { color:var(--water); }
 
-        .diagram-icon { font-size: 3rem; margin-bottom: 20px; }
+  #materials { background: var(--surface); }
+  .materials-inner { max-width:1100px; margin:0 auto; }
+  .materials-header { margin-bottom:4rem; }
+  .materials-header p { color:var(--muted); max-width:520px; font-size:1rem; font-weight:300; line-height:1.65; margin-top:.8rem; }
 
-        .city-selector-container {
-            display: flex; flex-direction: column; align-items: center; gap: 32px;
-            max-width: 700px; margin: 0 auto;
-        }
+  .material-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:2.5rem; }
+  .tab-btn {
+    background:transparent;
+    border:1.5px solid rgba(0,212,255,0.15);
+    color:var(--muted); padding:.5rem 1.2rem;
+    border-radius:100px; font-size:.82rem; font-weight:500;
+    cursor:none; font-family:'DM Sans',sans-serif;
+    transition: all .2s; letter-spacing:.04em;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    border-color:var(--water); color:var(--water);
+    background:rgba(0,212,255,0.07);
+  }
 
-        .city-selector-wrapper { position: relative; width: 100%; }
+  .material-panel { display:none; }
+  .material-panel.active { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
 
-        .city-selector {
-            background: rgba(255,255,255,0.12); backdrop-filter: blur(30px);
-            border: 2px solid rgba(255,255,255,0.2); border-radius: 28px;
-            padding: 24px 32px 24px 80px; width: 100%; font-size: 1.4rem;
-            color: var(--text-primary); font-weight: 500;
-            background-image: 
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23a7d8f0" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>'),
-                linear-gradient(135deg, rgba(79,209,197,0.1) 0%, rgba(34,211,238,0.1) 100%);
-            background-repeat: no-repeat; background-position: 28px center, 0 0;
-            background-size: 28px, cover; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer; appearance: none; font-family: 'Inter', sans-serif;
-        }
+  .mat-card {
+    background:var(--bg);
+    border:0.5px solid rgba(0,212,255,0.09);
+    border-radius:12px; padding:1.4rem;
+    transition: border-color .3s, transform .3s;
+  }
+  .mat-card:hover { border-color:rgba(0,212,255,0.35); transform:translateY(-3px); }
+  .mat-name { font-weight:500; font-size:.95rem; margin-bottom:.35rem; }
+  .mat-detail { font-size:.82rem; color:var(--muted); line-height:1.6; }
+  .mat-badge {
+    display:inline-block; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
+    background:rgba(0,212,255,0.1); color:var(--water);
+    padding:.2rem .6rem; border-radius:100px; margin-bottom:.7rem;
+  }
 
-        .city-selector:focus {
-            outline: none; border-color: #4fd1c5; 
-            box-shadow: 0 0 0 4px rgba(79,209,197,0.3), 0 20px 40px rgba(79,209,197,0.2);
-            transform: translateY(-2px);
-        }
+  #vision {
+    background:var(--bg);
+    text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .vision-bg {
+    position:absolute; inset:0; z-index:0;
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,100,150,0.18) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .vision-inner { max-width:720px; margin:0 auto; position:relative; z-index:1; }
+  .vision-inner p { color:var(--muted); font-size:1.1rem; line-height:1.75; font-weight:300; margin:1.5rem 0 3rem; }
+  .location-badge {
+    display:inline-flex; align-items:center; gap:.5rem;
+    background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.2);
+    padding:.55rem 1.3rem; border-radius:100px;
+    font-size:.82rem; color:var(--water); margin-bottom:2.5rem;
+    letter-spacing:.04em;
+  }
 
-        .city-selector option {
-            background: #1e3a5f; color: var(--text-primary); padding: 12px;
-        }
+  #contact { background:var(--surface); }
+  .contact-inner {
+    max-width:960px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center;
+  }
+  @media(max-width:720px){.contact-inner{grid-template-columns:1fr;gap:3rem;}}
+  .contact-text p { color:var(--muted); line-height:1.7; font-size:1rem; font-weight:300; margin:1rem 0 2rem; }
 
-        .air-quality-metrics {
-            background: rgba(255,255,255,0.15); backdrop-filter: blur(40px);
-            border: 1px solid rgba(255,255,255,0.25); border-radius: 32px;
-            padding: 48px; text-align: center; width: 100%;
-            transform: scale(0.8) rotateX(10deg); opacity: 0; 
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 32px 80px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden;
-        }
+  .contact-links { display:flex; flex-direction:column; gap:.8rem; }
+  .contact-link {
+    display:flex; align-items:center; gap:1rem;
+    background:var(--bg);
+    border:0.5px solid rgba(0,212,255,0.1);
+    border-radius:12px; padding:1.1rem 1.4rem;
+    text-decoration:none; color:var(--text);
+    transition: border-color .3s, transform .2s;
+  }
+  .contact-link:hover { border-color:var(--water); transform:translateX(4px); }
+  .contact-icon {
+    width:38px; height:38px; border-radius:10px;
+    background:rgba(0,212,255,0.1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.1rem; flex-shrink:0;
+  }
+  .contact-link-text strong { display:block; font-size:.9rem; font-weight:500; }
+  .contact-link-text span { font-size:.8rem; color:var(--muted); }
 
-        .air-quality-metrics::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: var(--primary-gradient); border-radius: 32px 32px 0 0;
-        }
+  .footer-contact {
+    display:flex; flex-direction:column; gap:1rem;
+    background:var(--bg);
+    border:0.5px solid rgba(0,212,255,0.1);
+    border-radius:12px;
+    padding:1.3rem;
+  }
+  .footer-contact p { margin:0; }
 
-        .air-quality-metrics.show {
-            transform: scale(1) rotateX(0deg); opacity: 1;
-        }
+  footer {
+    background:var(--bg);
+    border-top:.5px solid rgba(0,212,255,0.08);
+    padding:3rem 5vw;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:1rem;
+  }
+  .footer-logo {
+    font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800;
+    color:var(--water); text-decoration:none;
+  }
+  .footer-logo span { color:var(--muted); }
+  footer p { color:var(--muted); font-size:.8rem; }
+  .footer-note { font-size:.75rem; color:rgba(120,160,180,0.4); }
 
-        .metrics-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 24px;
-            max-width: 500px; margin: 0 auto 24px;
-        }
+  .reveal {
+    opacity:0; transform:translateY(40px);
+    transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+  }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+  .reveal-delay-1 { transition-delay:.1s; }
+  .reveal-delay-2 { transition-delay:.2s; }
+  .reveal-delay-3 { transition-delay:.3s; }
+  .reveal-delay-4 { transition-delay:.4s; }
 
-        .metric-card {
-            background: rgba(255,255,255,0.1); border-radius: 20px;
-            padding: 24px 20px; border: 1px solid rgba(255,255,255,0.15);
-            transition: all 0.3s ease;
-        }
+  #ripple-canvas {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:9990; opacity:0.35;
+  }
 
-        .metric-card:hover { transform: translateY(-4px); }
+  @media(max-width:600px){
+    nav .nav-links { display:none; }
+    .stat-item { min-width:160px; }
+    .hero-btns { flex-direction:column; align-items:center; }
+    body { cursor: auto !important; }
+    #cursor, #cursor-ring { display: none !important; }
+    .hero-sub { max-width: 100%; padding: 0 1rem; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .material-panel.active { grid-template-columns: 1fr; }
+  }
 
-        .metric-number {
-            font-family: 'Futura PT', sans-serif;
-            font-size: clamp(2.2rem, 6vw, 3.5rem); font-weight: 900; margin-bottom: 8px;
-        }
-
-        .aqi-good .metric-number { background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .aqi-moderate .metric-number { background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .aqi-unhealthy .metric-number { background: linear-gradient(135deg, #ef4444, #f87171); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .aqi-very-unhealthy .metric-number { background: linear-gradient(135deg, #7c3aed, #a78bfa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .metric-label { font-size: 1rem; color: var(--text-secondary); font-weight: 500; }
-
-        .protection-impact {
-            background: rgba(16,185,129,0.2); border: 2px solid rgba(16,185,129,0.4);
-            border-radius: 20px; padding: 24px; margin-top: 24px;
-        }
-
-        .protection-text {
-            font-size: 1.3rem; color: var(--success-green); font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .tech-overview {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin: 48px 0;
-        }
-
-        .tech-column h3 {
-            font-family: 'Futura PT', sans-serif;
-            font-size: 1.6rem; font-weight: 800;
-            background: var(--secondary-gradient);
-            background-clip: text; -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
-        }
-
-        .tech-spec {
-            display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
-            padding: 16px 20px; background: rgba(255,255,255,0.1);
-            border-radius: 16px; border-left: 4px solid var(--success-green);
-        }
-
-        .tech-icon { font-size: 1.8rem; }
-
-        .how-works-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px; margin-top: 64px;
-        }
-
-        .step-card {
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
-            padding: 48px 32px; text-align: center; position: relative;
-            transition: all 0.4s ease;
-        }
-
-        .step-card:hover { transform: translateY(-8px); }
-        .step-number {
-            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-            background: var(--primary-gradient); color: white; width: 48px; height: 48px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-family: 'Futura PT', sans-serif; font-size: 1.4rem; font-weight: 800;
-        }
-
-        .instagram-section {
-            text-align: center; padding: 40px 0;
-        }
-
-        .instagram-handle {
-            font-size: 2.5rem; font-weight: 800; 
-            background: var(--primary-gradient); background-clip: text;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 16px;
-        }
-
-        .submit-btn {
-            background: var(--primary-gradient); border: none; border-radius: 20px;
-            padding: 20px 48px; font-size: 1.2rem; font-weight: 600;
-            color: white; cursor: pointer; width: 100%;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-family: 'Futura PT', sans-serif;
-            text-decoration: none; display: inline-block;
-        }
-
-        .submit-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 20px 40px rgba(79,209,197,0.4); }
-
-        @media (max-width: 768px) {
-            .tech-overview, .metrics-grid { grid-template-columns: 1fr; }
-            .container { padding: 0 16px; }
-            .section { padding: 40px 24px; }
-        }
-    </style>
+  .water-text {
+    background: linear-gradient(135deg, #00d4ff, #0098c4, #00e5ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <header class="header">
-            <h1 class="logo-text">Hydrythm</h1>
-            <p style="font-size: 1.4rem; color: rgba(255,255,255,0.9); max-width: 700px; margin: 0 auto; line-height: 1.7;">
-                Wearable Water-Based Air Purification Helmet - Miniaturized Industrial Wet-Scrubber Technology
-            </p>
-        </header>
 
-        <!-- CRISIS STATS -->
-        <section class="section">
-            <h2 class="section-title">The Silent Killer</h2>
-            <div class="crisis-stats">
-                <div class="stat-card">
-                    <div class="stat-number">7.9M</div>
-                    <div>Deaths annually from air pollution</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">86%</div>
-                    <div>Heart disease, stroke, lung cancer</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">$4.6T</div>
-                    <div>Global economic impact yearly</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">99%</div>
-                    <div>World population breathing unsafe air</div>
-                </div>
-            </div>
-        </section>
+<canvas id="ripple-canvas"></canvas>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
 
-        <!-- SYSTEM OVERVIEW -->
-        <section class="section">
-            <h2 class="section-title">Hydrythm Airflow System</h2>
-            <div class="system-diagram">
-                <div class="diagram-step">
-                    <div class="diagram-icon">💨</div>
-                    <h3>Side Intake Grills</h3>
-                    <p>Ambient air enters through side-mounted grills</p>
-                </div>
-                <div class="diagram-step">
-                    <div class="diagram-icon">🌀</div>
-                    <h3>Microfan Assisted</h3>
-                    <p>Low-power fans pull air through filtration system</p>
-                </div>
-                <div class="diagram-step">
-                    <div class="diagram-icon">💧</div>
-                    <h3>Water Filtration Chamber</h3>
-                    <p>Microdroplets trap PM2.5, PM10, dust, pollen</p>
-                </div>
-                <div class="diagram-step">
-                    <div class="diagram-icon">🫁</div>
-                    <h3>Clean Air Delivery</h3>
-                    <p>Purified air flows to nose/mouth area</p>
-                </div>
-                <div class="diagram-step">
-                    <div class="diagram-icon">🔋</div>
-                    <h3>Modular Battery</h3>
-                    <p>Rechargeable rear-mounted power pack</p>
-                </div>
-                <div class="diagram-step">
-                    <div class="diagram-icon">♻️</div>
-                    <h3>Replaceable Cartridge</h3>
-                    <p>Transparent water chamber for monitoring</p>
-                </div>
-            </div>
-        </section>
+<nav id="navbar">
+  <a href="#" class="nav-logo">Hydry<span>thm</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#specs">Specs</a></li>
+    <li><a href="#materials">Materials</a></li>
+    <li><a href="#vision">Vision</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get In Touch</button>
+</nav>
 
-        <!-- CITY AIR QUALITY -->
-        <section class="section">
-            <h2 class="section-title">Your City. Real Protection.</h2>
-            <div class="city-selector-container">
-                <div class="city-selector-wrapper">
-                    <select class="city-selector" id="citySelector">
-                        <option value="">🌍 Select your city to see protection...</option>
-                        <option value="dubai">🇦🇪 Dubai, UAE</option>
-                        <option value="delhi">🇮🇳 Delhi, India</option>
-                        <option value="london">🇬🇧 London, UK</option>
-                        <option value="losangeles">🇺🇸 Los Angeles, USA</option>
-                        <option value="beijing">🇨🇳 Beijing, China</option>
-                        <option value="mumbai">🇮🇳 Mumbai, India</option>
-                        <option value="sydney">🇦🇺 Sydney, Australia</option>
-                    </select>
-                </div>
-                <div class="air-quality-metrics" id="airQualityDisplay">
-                    <div class="metrics-grid">
-                        <div class="metric-card" id="currentMetric">
-                            <div class="metric-number" id="currentAQI"></div>
-                            <div class="metric-label">Current AQI</div>
-                        </div>
-                        <div class="metric-card" id="protectedMetric">
-                            <div class="metric-number" id="protectedAQI"></div>
-                            <div class="metric-label">With Hydrythm</div>
-                        </div>
-                    </div>
-                    <div class="protection-impact">
-                        <div class="protection-text">✅PM2.5 Reduction</div>
-                        <div style="color: var(--text-secondary); font-size: 1rem;">
-                            Instant clean air protection wherever you go
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="water-orb o1"></div>
+  <div class="water-orb o2"></div>
 
-        <!-- PRECISION ENGINEERING -->
-        <section class="section">
-            <h2 class="section-title">Precision Engineering</h2>
-            <p style="font-size: 1.2rem; text-align: center; max-width: 900px; margin: 0 auto 48px; color: rgba(255,255,255,0.9); line-height: 1.7;">
-                Miniaturized industrial wet-scrubber technology adapted for wearable use - capturing PM2.5, PM10, dust, pollen and certain gases
-            </p>
+  <div class="hero-tag">
+    <span class="tag-dot"></span>
+    Conceptual Design · Dubai, UAE
+  </div>
 
-            <div class="tech-overview">
-                <div class="tech-column">
-                    <h3>Core Filtration System</h3>
-                    <div class="tech-spec">
-                        <div class="tech-icon">🫁</div>
-                        <div>
-                            <h4>Water-Based Wet Scrubbing</h4>
-                            <p>Thin water films trap particulates like industrial scrubbers</p>
-                        </div>
-                    </div>
-                    <div class="tech-spec">
-                        <div class="tech-icon">⚡</div>
-                        <div>
-                            <h4>Microfan Assisted Flow</h4>
-                            <p>Low-power fans ensure consistent airflow through chamber</p>
-                        </div>
-                    </div>
-                    <div class="tech-spec">
-                        <div class="tech-icon">💧</div>
-                        <div>
-                            <h4>Transparent Chamber</h4>
-                            <p>Monitor water level and captured pollutants visually</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="tech-column">
-                    <h3>Power & Safety</h3>
-                    <div class="tech-spec">
-                        <div class="tech-icon">🔋</div>
-                        <div>
-                            <h4>Lithium-Polymer Battery</h4>
-                            <p>Rear-mounted, modular, rechargeable power system</p>
-                        </div>
-                    </div>
-                    <div class="tech-spec">
-                        <div class="tech-icon">♻️</div>
-                        <div>
-                            <h4>Removable Cartridge</h4>
-                            <p>Easy water replacement and maintenance</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <h1 class="hero-title">
+    Clean Air<br>You Can <em>See</em>
+  </h1>
 
-            <div class="how-works-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3>Air Intake & Microfans</h3>
-                    <p>Side grills pull ambient air through the system</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3>Water Filtration Chamber</h3>
-                    <p>Microdroplets capture pollutants through wet scrubbing</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3>Clean Air Delivery</h3>
-                    <p>Purified air reaches nose/mouth breathing zone</p>
-                </div>
-            </div>
-        </section>
+  <p class="hero-sub">
+    A wearable water-based air purification helmet — miniaturizing industrial wet-scrubber technology into something you can wear. No filters. No replacements. Just water.
+  </p>
 
-        <!-- ABOUT THE INVENTOR (SIMPLIFIED) -->
-        <section class="section">
-            <h2 class="section-title">About the Inventor</h2>
-            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <div style="display: flex; flex-direction: column; gap: 48px; align-items: center;">
-                    <!-- The Vision -->
-                    <div>
-                        <h3 style="font-family: 'Futura PT', sans-serif; font-size: 2.2rem; background: var(--primary-gradient); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 24px;">
-                            The Vision
-                        </h3>
-                        <p style="color: var(--text-primary); line-height: 1.8; font-size: 1.2rem; max-width: 700px; margin: 0 auto;">
-                            An aim to build it in Dubai to solve the global air pollution crisis. 
-                            Miniaturized industrial technology for personal protection - 
-                            because clean air shouldn't be a luxury.
-                        </p>
-                    </div>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">How It Works</button>
+    <button class="btn-ghost" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Partner With Us</button>
+  </div>
 
-                    <!-- Stats Grid -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 24px; max-width: 500px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--success-green); margin-bottom: 12px;">17</div>
-                            <div style="color: var(--text-secondary); font-weight: 500;">Years Old</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: 800; color: #4fd1c5; margin-bottom: 12px;">8mo</div>
-                            <div style="color: var(--text-secondary); font-weight: 500;">Research</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: 800; color: #f59e0b; margin-bottom: 12px;">Aim 98%</div>
-                            <div style="color: var(--text-secondary); font-weight: 500;">PM2.5 Capture</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
 
-        <!-- INSTAGRAM SECTION -->
-        <section class="section instagram-section">
-            <h2 class="section-title">Connect on Instagram</h2>
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 32px;">
-                <div class="instagram-handle">@dha1ryadesai</div>
-                <a href="https://instagram.com/dha1ryadesai" target="_blank" class="submit-btn" style="max-width: 320px; font-size: 1.3rem;">
-                    📱 Message on Instagram
-                </a>
-                <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 400px;">
-                    DM for partnerships, demos, inquiries & collaborations
-                </p>
-            </div>
-        </section>
+<div class="stat-strip">
+  <div class="stat-item reveal">
+    <div class="stat-num">7.9M</div>
+    <div class="stat-label">Deaths / year from air pollution</div>
+  </div>
+  <div class="stat-item reveal reveal-delay-1">
+    <div class="stat-num">$4.6T</div>
+    <div class="stat-label">Global economic cost</div>
+  </div>
+  <div class="stat-item reveal reveal-delay-2">
+    <div class="stat-num">99%</div>
+    <div class="stat-label">World population affected</div>
+  </div>
+  <div class="stat-item reveal reveal-delay-3">
+    <div class="stat-num">$0</div>
+    <div class="stat-label">Recurring filter cost</div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="how-inner">
+    <div class="how-header reveal">
+      <span class="section-tag">Technology</span>
+      <h2 class="section-title">A 4-Stage <em>Filtration</em> System</h2>
+      <p>Polluted air enters, passes through a water-film chamber, and exits as a personal clean-air bubble — all in a unit lighter than 500 grams.</p>
     </div>
 
-    <script>
-        const cityAQI = {
-            dubai: { current: 156, label: 'Unhealthy', class: 'aqi-unhealthy' },
-            delhi: { current: 342, label: 'Very Unhealthy', class: 'aqi-very-unhealthy' },
-            london: { current: 78, label: 'Moderate', class: 'aqi-moderate' },
-            losangeles: { current: 112, label: 'Unhealthy for Sensitive Groups', class: 'aqi-unhealthy' },
-            beijing: { current: 245, label: 'Very Unhealthy', class: 'aqi-very-unhealthy' },
-            mumbai: { current: 198, label: 'Unhealthy', class: 'aqi-unhealthy' },
-            sydney: { current: 45, label: 'Good', class: 'aqi-good' }
-        };
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">01</div>
+        <div class="step-icon">💨</div>
+        <div class="step-title">Side Intake Grills</div>
+        <div class="step-desc">Polluted air enters from both sides, away from your face, through protective grills with a coarse pre-filter mesh for large particles.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">02</div>
+        <div class="step-icon">🌀</div>
+        <div class="step-title">Microfan-Assisted Flow</div>
+        <div class="step-desc">Two quiet centrifugal micro-blowers pull air at 20–40 L/min with adjustable low, medium, and high modes for comfort vs. protection.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">03</div>
+        <div class="step-icon">💧</div>
+        <div class="step-title">Water Filtration Chamber</div>
+        <div class="step-desc">Air passes through a transparent 30–50 ml water cartridge. Microdroplets and water films trap PM2.5, PM10, dust, pollen, and gases — like industrial wet scrubbers, miniaturized.</div>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num">04</div>
+        <div class="step-icon">✨</div>
+        <div class="step-title">Clean Air Delivery</div>
+        <div class="step-desc">Purified air is gently blown into a soft face-seal zone around your nose and mouth, creating a personal clean-air bubble. Excess air vents downward.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        const citySelector = document.getElementById('citySelector');
-        const airQualityDisplay = document.getElementById('airQualityDisplay');
-        const currentAQI = document.getElementById('currentAQI');
-        const protectedAQI = document.getElementById('protectedAQI');
-        const currentMetric = document.getElementById('currentMetric');
-        const protectedMetric = document.getElementById('protectedMetric');
+<section id="specs">
+  <div class="specs-inner">
+    <div class="specs-layout">
+      <div class="specs-text reveal">
+        <span class="section-tag">Specifications</span>
+        <h2 class="section-title">Built For <em>All-Day</em> Wear</h2>
+        <p>Every specification has been designed around real-world comfort — balanced weight distribution, USB-C charging, and a cartridge you pop out, rinse, and refill in seconds.</p>
 
-        citySelector.addEventListener('change', function() {
-            const selectedCity = this.value;
-            if (selectedCity && cityAQI[selectedCity]) {
-                const data = cityAQI[selectedCity];
-                let protectedValue;
-                if (selectedCity === 'delhi') protectedValue = 162;
-                else if (selectedCity === 'beijing') protectedValue = 125;  
-                else protectedValue = Math.max(12, Math.round(data.current * 0.20));
-                
-                animateNumber(currentAQI, data.current);
-                animateNumber(protectedAQI, protectedValue);
-                
-                Object.values([currentMetric, protectedMetric]).forEach((metric) => {
-                    metric.className = `metric-card ${data.class}`;
-                });
-                
-                airQualityDisplay.classList.add('show');
-            } else {
-                airQualityDisplay.classList.remove('show');
-            }
-        });
+        <div class="contact-links">
+          <a href="#contact" class="contact-link">
+            <div class="contact-icon">⚗️</div>
+            <div class="contact-link-text">
+              <strong>Target Filtration: 70–85% PM2.5</strong>
+              <span>Real-world tested with incense & talcum</span>
+            </div>
+          </a>
+          <a href="#contact" class="contact-link">
+            <div class="contact-icon">🔋</div>
+            <div class="contact-link-text">
+              <strong>5–8 Hours Battery Life</strong>
+              <span>USB-C, full charge in under 2 hours</span>
+            </div>
+          </a>
+          <a href="#contact" class="contact-link">
+            <div class="contact-icon">💡</div>
+            <div class="contact-link-text">
+              <strong>Visible Pollution Capture</strong>
+              <span>Watch dirty water collect in real-time</span>
+            </div>
+          </a>
+        </div>
+      </div>
 
-        function animateNumber(element, target) {
-            let start = 0;
-            const duration = 1200;
-            const startTime = performance.now();
-            
-            function step(currentTime) {
-                const progress = Math.min((currentTime - startTime) / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                element.textContent = Math.floor(easeProgress * target).toLocaleString();
-                
-                if (progress < 1) {
-                    requestAnimationFrame(step);
-                }
-            }
-            requestAnimationFrame(step);
-        }
+      <div class="reveal reveal-delay-2">
+        <div class="spec-list">
+          <div class="spec-row"><span class="spec-key">Total Weight</span><span class="spec-val accent">380–480 g</span></div>
+          <div class="spec-row"><span class="spec-key">Airflow Rate</span><span class="spec-val">20–40 L/min</span></div>
+          <div class="spec-row"><span class="spec-key">Water Capacity</span><span class="spec-val accent">30–50 ml</span></div>
+          <div class="spec-row"><span class="spec-key">Battery</span><span class="spec-val">5–8 hours</span></div>
+          <div class="spec-row"><span class="spec-key">Charging</span><span class="spec-val accent">USB-C · 1.5–2h</span></div>
+          <div class="spec-row"><span class="spec-key">Noise</span><span class="spec-val">&lt; 65 dB</span></div>
+          <div class="spec-row"><span class="spec-key">Operating Voltage</span><span class="spec-val accent">5V DC</span></div>
+          <div class="spec-row"><span class="spec-key">Shell Dimensions</span><span class="spec-val">28 × 22 × 18 cm</span></div>
+          <div class="spec-row"><span class="spec-key">Prototype Cost</span><span class="spec-val accent">$30–$55</span></div>
+          <div class="spec-row"><span class="spec-key">Maintenance</span><span class="spec-val">Rinse &amp; Refill</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        });
+<section id="materials">
+  <div class="materials-inner">
+    <div class="materials-header reveal">
+      <span class="section-tag">Build It Yourself</span>
+      <h2 class="section-title">Complete <em>Materials</em> List</h2>
+      <p>Every component is available off-the-shelf. All buildable with a 3D printer, soldering iron, and parts from Amazon, Flipkart, or IndiaMART.</p>
+    </div>
 
-        document.querySelectorAll('.section').forEach(section => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(30px)';
-            section.style.transition = 'all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            observer.observe(section);
-        });
-    </script>
+    <div class="material-tabs reveal">
+      <button class="tab-btn active" data-tab="shell">Shell & Structure</button>
+      <button class="tab-btn" data-tab="cartridge">Water Cartridge</button>
+      <button class="tab-btn" data-tab="power">Air & Power</button>
+      <button class="tab-btn" data-tab="electronics">Electronics</button>
+    </div>
+
+    <div class="material-panel active" id="tab-shell">
+      <div class="mat-card reveal">
+        <div class="mat-badge">3D Printed</div>
+        <div class="mat-name">Main Helmet Shell + Intake Grills</div>
+        <div class="mat-detail">PETG filament 1.75 mm, black or matte finish for durability and UV resistance — approx. 350–450 g filament per unit.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-1">
+        <div class="mat-badge">Flexible</div>
+        <div class="mat-name">Face-Seal Padding Frame</div>
+        <div class="mat-detail">Soft TPU filament (flexible) or 5 mm thick EVA foam sheet, cut to shape for comfortable all-day wear.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-2">
+        <div class="mat-badge">Hardware</div>
+        <div class="mat-name">Adjustable Head Straps</div>
+        <div class="mat-detail">25 mm nylon webbing (2 m length) + plastic buckles + Velcro for a universal fit.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-3">
+        <div class="mat-badge">Comfort</div>
+        <div class="mat-name">Interior Padding</div>
+        <div class="mat-detail">10 mm thick closed-cell foam or memory foam scraps glued inside shell for comfort during extended wear.</div>
+      </div>
+    </div>
+
+    <div class="material-panel" id="tab-cartridge">
+      <div class="mat-card reveal">
+        <div class="mat-badge">Clear PETG</div>
+        <div class="mat-name">Transparent Cartridge Body</div>
+        <div class="mat-detail">Clear PETG filament or 3–5 mm acrylic sheet — must be fully see-through so you watch dirty water collect in real time.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-1">
+        <div class="mat-badge">Filtration Media</div>
+        <div class="mat-name">Internal Wicks & Mesh</div>
+        <div class="mat-detail">Non-woven polypropylene fabric or thin open-cell foam, 2–3 layers, creates microdroplets and water film to trap particles.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-2">
+        <div class="mat-badge">Sealing</div>
+        <div class="mat-name">Silicone Gasket / O-Ring</div>
+        <div class="mat-detail">Food-grade silicone sheet or O-ring cord. Prevents leaks. 4× small plastic or metal clips for quick-release latches.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-3">
+        <div class="mat-badge">3D Printed</div>
+        <div class="mat-name">Baffles & Droplet Separators</div>
+        <div class="mat-detail">PETG printed internals prevent sloshing and water droplet carry-over into the clean air stream.</div>
+      </div>
+    </div>
+
+    <div class="material-panel" id="tab-power">
+      <div class="mat-card reveal">
+        <div class="mat-badge">Core Component</div>
+        <div class="mat-name">5V Centrifugal Micro-Blowers × 2</div>
+        <div class="mat-detail">30–40 mm high-static-pressure blowers, 10–15 CFM each. Similar to CPAP mask fans. ~₹250–450 each on Amazon.in or IndiaMART.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-1">
+        <div class="mat-badge">Power</div>
+        <div class="mat-name">LiPo Battery Pack</div>
+        <div class="mat-detail">3.7V or 7.4V LiPo 2000–3000 mAh with built-in BMS + USB-C charging board. Or repurposed power-bank internals. ~₹400–800.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-2">
+        <div class="mat-badge">Control</div>
+        <div class="mat-name">Speed Controller</div>
+        <div class="mat-detail">5V buck converter + potentiometer or Arduino Nano for 3-speed control. ₹150–300. Waterproof toggle/push-button with LED indicator.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-3">
+        <div class="mat-badge">Pre-Filter</div>
+        <div class="mat-name">Washable Intake Mesh</div>
+        <div class="mat-detail">Spun-bond polypropylene or fine stainless-steel mesh cut to 57–60 mm diameter circles. Reusable and washable.</div>
+      </div>
+    </div>
+
+    <div class="material-panel" id="tab-electronics">
+      <div class="mat-card reveal">
+        <div class="mat-badge">Wiring</div>
+        <div class="mat-name">22 AWG Silicone Wire & Connectors</div>
+        <div class="mat-detail">JST or XT30 connectors + heat-shrink tubing. Basic PCB or perfboard for fan + battery connections.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-1">
+        <div class="mat-badge">Optional V2</div>
+        <div class="mat-name">PM2.5 Sensor Module</div>
+        <div class="mat-detail">~₹300. Pairs with a small OLED display to show real-time AQI and battery percentage.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-2">
+        <div class="mat-badge">Waterproofing</div>
+        <div class="mat-name">Epoxy + Silicone Sealant</div>
+        <div class="mat-detail">Seal all joints and seams. Hot glue for structural bonds. Critical for protecting the electronics from the water cartridge.</div>
+      </div>
+      <div class="mat-card reveal reveal-delay-3">
+        <div class="mat-badge">Fasteners</div>
+        <div class="mat-name">M3/M4 Stainless Screws</div>
+        <div class="mat-detail">Heat-set inserts for 3D prints. Soldering iron + glue gun + multimeter needed for assembly. Build time: 10–15h printing, 4–6h assembly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="vision">
+  <div class="vision-bg"></div>
+  <div class="vision-inner">
+    <span class="section-tag reveal">The Vision</span>
+    <h2 class="section-title reveal"><em>Clean Air</em> Shouldn't Be a Luxury</h2>
+
+    <div class="location-badge reveal">
+      <span>📍</span> Designed for the world · Scaling from Dubai, UAE
+    </div>
+
+    <p class="reveal">
+      Hydrythm was born from frustration with Delhi-level AQI and a belief that clean air is a right, not a privilege. After 8 months of research, the blueprint is ready. The first prototype is buildable today — and the path to mass manufacturing is mapped.
+    </p>
+
+    <div class="steps-grid reveal" style="text-align:left; margin-bottom:3rem;">
+      <div class="step-card">
+        <div class="step-num">①</div>
+        <div class="step-title">Prototype</div>
+        <div class="step-desc">Build and test the first working unit. Validate 70–85% PM2.5 filtration in real conditions.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">②</div>
+        <div class="step-title">Iterate</div>
+        <div class="step-desc">Refine the cartridge, improve efficiency, add PM2.5 sensor, optimize battery life to 10+ hours.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">③</div>
+        <div class="step-title">Scale</div>
+        <div class="step-desc">Move to injection-molded ABS shell + mass-produced cartridge. Retail target: under $40–70.</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Join the Mission</button>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-text reveal">
+      <span class="section-tag">Connect</span>
+      <h2 class="section-title">Let's Build <em>Together</em></h2>
+      <p>Whether you're a maker, engineer, investor, or manufacturer — reach out directly through Instagram.</p>
+
+      <div class="contact-links">
+        <a href="https://instagram.com/dha1ryadesai" class="contact-link" target="_blank">
+          <div class="contact-icon">📸</div>
+          <div class="contact-link-text">
+            <strong>@dha1ryadesai</strong>
+            <span>Instagram — DM the inventor</span>
+          </div>
+        </a>
+        <a href="https://instagram.com/dha1ryadesai" class="contact-link" target="_blank">
+          <div class="contact-icon">✉️</div>
+          <div class="contact-link-text">
+            <strong>Send a Message</strong>
+            <span>Partnerships, demos, collaborations</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="reveal reveal-delay-2">
+      <div class="footer-contact">
+        <p style="color:var(--water); font-weight:700; font-size:1.05rem;">No contact form is connected here anymore.</p>
+        <p style="color:var(--muted); line-height:1.7;">Use Instagram DM instead, or add an email later if you want a backend form again.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="footer-logo">Hydry<span>thm</span></a>
+  <p>Conceptual design by Dhairya Desai · Dubai, UAE</p>
+  <p class="footer-note">Not yet in production · Design ready · Clean air you can see 💧</p>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+
+if (window.innerWidth > 600) {
+  document.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  });
+  function animateRing(){
+    rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
+    ring.style.left=rx+'px'; ring.style.top=ry+'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{
+      cursor.style.transform='translate(-50%,-50%) scale(2.5)';
+      cursor.style.opacity='0.5';
+      ring.style.width='60px'; ring.style.height='60px';
+      ring.style.borderColor='rgba(0,212,255,0.9)';
+    });
+    el.addEventListener('mouseleave',()=>{
+      cursor.style.transform='translate(-50%,-50%) scale(1)';
+      cursor.style.opacity='1';
+      ring.style.width='36px'; ring.style.height='36px';
+      ring.style.borderColor='rgba(0,212,255,0.5)';
+    });
+  });
+}
+
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.material-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    document.querySelectorAll('#tab-'+btn.dataset.tab+' .reveal').forEach(el=>{
+      el.classList.add('visible');
+    });
+  });
+});
+
+const canvas = document.getElementById('ripple-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+const ripples = [];
+document.addEventListener('click', e => {
+  ripples.push({x: e.clientX, y: e.clientY, r: 0, max: 120, alpha: 0.6});
+});
+
+function animateRipples(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i = ripples.length - 1; i >= 0; i--){
+    const rp = ripples[i];
+    rp.r += 3;
+    rp.alpha -= 0.012;
+    if(rp.alpha <= 0){ ripples.splice(i,1); continue; }
+    ctx.beginPath();
+    ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI*2);
+    ctx.strokeStyle = `rgba(0,212,255,${rp.alpha})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    if(rp.r > 30){
+      ctx.beginPath();
+      ctx.arc(rp.x, rp.y, rp.r*0.55, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(0,212,255,${rp.alpha*0.5})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+  requestAnimationFrame(animateRipples);
+}
+animateRipples();
+</script>
 </body>
 </html>
